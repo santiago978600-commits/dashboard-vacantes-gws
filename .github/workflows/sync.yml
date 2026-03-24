@@ -29,18 +29,11 @@ jobs:
 
       - name: Download Excel from SharePoint
         run: |
-          set -euo pipefail
           mkdir -p data
-          URL="https://juanciudad-my.sharepoint.com/:x:/g/personal/ferney_pinzon_mederi_com_co/IQDbSIaMgu_TQ6Sg5ONBno2hAeVKjCUF_wmZnB5u0eR2Qr8?e=MP4c8Y&download=1"
-          curl --fail --location --silent --show-error "$URL" -o data/dashboard.xlsx
-          FILE_TYPE=$(file --brief --mime-type data/dashboard.xlsx)
-          echo "MIME detectado: $FILE_TYPE"
-          case "$FILE_TYPE" in
-            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet) echo "✅ XLSX válido";;
-            application/zip) echo "✅ XLSX detectado como zip (OK)";;
-            *) echo "❌ ERROR: SharePoint devolvió HTML en vez de Excel. Revisa permisos del enlace." >&2; exit 1;;
-          esac
-
+          curl -L --fail --silent --show-error \
+            "https://juanciudad-my.sharepoint.com/personal/ferney_pinzon_mederi_com_co/_layouts/15/download.aspx?UniqueId=IQDbSIaMgu_TQ6Sg5ONBno2hAeVKjCUF_wmZnB5u0eR2Qr8" \
+            -o data/dashboard.xlsx
+            
       - name: Generate Dashboard
         run: python3 scripts/generate.py data/dashboard.xlsx
 
