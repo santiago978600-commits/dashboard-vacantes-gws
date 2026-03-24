@@ -6,17 +6,19 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: write   # ✅ Necesario para permitir git push
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
+      # ✅ Usar checkout versión 4 (compatible con Node.js 24)
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
+      # ✅ Usar setup-python versión 5 (Node.js 24 compatible)
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
@@ -30,6 +32,7 @@ jobs:
           mkdir -p data
           curl -L "https://juanciudad-my.sharepoint.com/:x:/g/personal/ferney_pinzon_mederi_com_co/IQDbSIaMgu_TQ6Sg5ONBno2hAeVKjCUF_wmZnB5u0eR2Qr8?e=qa9wuL" \
             -o data/dashboard.xlsx
+
       - name: Generate Dashboard
         run: python3 scripts/generate.py data/dashboard.xlsx
 
