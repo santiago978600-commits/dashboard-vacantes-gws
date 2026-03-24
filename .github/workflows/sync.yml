@@ -25,8 +25,7 @@ jobs:
       - name: Download Excel from SharePoint
         run: |
           mkdir -p data
-          curl -L "https://corphospitalariajuanciudad-my.sharepoint.com/:x:/g/personal/santiago_pinzon_juanciudad_edu_co/EclYp-6-oEFAuOqG5u_P7jMBInXInUfM37f2O6y1WqM5zQ?download=1" -o data/dashboard.xlsx
-
+          curl -L "https://juanciudad-my.sharepoint.com/:x:/g/personal/ferney_pinzon_mederi_com_co/IQDbSIaMgu_TQ6Sg5ONBno2hAeVKjCUF_wmZnB5u0eR2Qr8?e=qa9wuL"
       - name: Generate Dashboard
         run: python3 scripts/generate.py data/dashboard.xlsx
 
