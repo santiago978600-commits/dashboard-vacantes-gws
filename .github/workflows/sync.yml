@@ -31,7 +31,7 @@ jobs:
         run: |
           mkdir -p data
           curl -L --fail --silent --show-error \
-            "https://juanciudad-my.sharepoint.com/:x:/g/personal/ferney_pinzon_mederi_com_co/IQDbSIaMgu_TQ6Sg5ONBno2hAeVKjCUF_wmZnB5u0eR2Qr8" \
+            "https://juanciudad-my.sharepoint.com/:x:/g/personal/ferney_pinzon_mederi_com_co/IQDbSIaMgu_TQ6Sg5ONBno2hAeVKjCUF_wmZnB5u0eR2Qr8?e=ncV8Wc" \
             -o data/dashboard.xlsx
             
       - name: Generate Dashboard
