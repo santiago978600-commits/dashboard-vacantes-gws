@@ -6,17 +6,17 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write   # ✅ Necesario para permitir git push
+  contents: write        # Permite git push
+  pages: write           # Permite publicar en GitHub Pages
+  id-token: write        # Requerido por Pages
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      # ✅ Usar checkout versión 4 (compatible con Node.js 24)
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ✅ Usar setup-python versión 5 (Node.js 24 compatible)
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -36,10 +36,22 @@ jobs:
       - name: Generate Dashboard
         run: python3 scripts/generate.py data/dashboard.xlsx
 
-      - name: Commit and Push changes
+      - name: Commit updated dashboard
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add index.html
-          git commit -m "chore: automated dashboard update from SharePoint" || echo "No changes to commit"
+          git commit -m "chore: automated dashboard update" || echo "No changes to commit"
           git push
+
+      - name: Upload artifact for GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .     # Publica todo, incluido index.html
+
+  deploy:
+    needs: sync
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy GitHub Pages
+        uses: actions/deploy-pages@v4
