@@ -2,8 +2,11 @@ name: GWS Recruitment Dashboard Sync
 
 on:
   schedule:
-    - cron: '*/30 * * * *' # Cada 30 minutos
-  workflow_dispatch: # Permite ejecución manual
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   sync:
@@ -25,7 +28,8 @@ jobs:
       - name: Download Excel from SharePoint
         run: |
           mkdir -p data
-          curl -L "https://juanciudad-my.sharepoint.com/:x:/g/personal/ferney_pinzon_mederi_com_co/IQDbSIaMgu_TQ6Sg5ONBno2hAeVKjCUF_wmZnB5u0eR2Qr8?e=qa9wuL"
+          curl -L "https://juanciudad-my.sharepoint.com/:x:/g/personal/ferney_pinzon_mederi_com_co/IQDbSIaMgu_TQ6Sg5ONBno2hAeVKjCUF_wmZnB5u0eR2Qr8?e=qa9wuL" \
+            -o data/dashboard.xlsx
       - name: Generate Dashboard
         run: python3 scripts/generate.py data/dashboard.xlsx
 
