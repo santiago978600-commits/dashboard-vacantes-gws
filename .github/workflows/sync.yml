@@ -1,0 +1,39 @@
+name: GWS Recruitment Dashboard Sync
+
+on:
+  schedule:
+    - cron: '*/30 * * * *' # Cada 30 minutos
+  workflow_dispatch: # Permite ejecución manual
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas openpyxl
+
+      - name: Download Excel from SharePoint
+        run: |
+          mkdir -p data
+          curl -L "https://corphospitalariajuanciudad-my.sharepoint.com/:x:/g/personal/santiago_pinzon_juanciudad_edu_co/EclYp-6-oEFAuOqG5u_P7jMBInXInUfM37f2O6y1WqM5zQ?download=1" -o data/dashboard.xlsx
+
+      - name: Generate Dashboard
+        run: python3 scripts/generate.py data/dashboard.xlsx
+
+      - name: Commit and Push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add index.html
+          git commit -m "chore: automated dashboard update from SharePoint" || echo "No changes to commit"
+          git push
