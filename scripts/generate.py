@@ -63,7 +63,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         ONEDRIVE_PATH = sys.argv[1]
     else:
-        ONEDRIVE_PATH = "/Users/santiagopinzon/Library/CloudStorage/OneDrive-CorporacionHospitalariaJuanCiudad/Dashboard Vacantes/Informe vacantes Auto Dashboard.xlsx"
+        raise Exception("No se recibió el archivo Excel como parámetro.")
     
     TEMPLATE_PATH = BASE_DIR / 'templates' / 'main.html'
     OUTPUT_PATH = BASE_DIR / 'index.html'
