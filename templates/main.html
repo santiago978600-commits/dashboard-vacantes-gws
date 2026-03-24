@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talento GWS | Dashboard Inteligente</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --primary: #38bdf8;
+            --accent: #818cf8;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --danger: #f87171;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        [data-theme="light"] {
+            --bg: #f8fafc;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --text-main: #1e293b;
+            --text-dim: #64748b;
+            --border: rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+
+        /* --- Header --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+        .logo h1 { font-size: 1.8rem; font-weight: 700; background: linear-gradient(to right, var(--primary), var(--accent)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .meta { text-align: right; }
+        .meta p { font-size: 0.8rem; color: var(--text-dim); }
+
+        /* --- Global Stats --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+        .stat-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            border-radius: 20px;
+            text-align: center;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .stat-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .stat-card h3 { font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+        .stat-card .value { font-size: 2.2rem; font-weight: 800; color: var(--primary); }
+
+        /* --- Dashboard Body --- */
+        .dashboard-body {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            height: 100%;
+        }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .card-header h2 { font-size: 1.2rem; font-weight: 600; }
+
+        /* --- Table --- */
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th { text-align: left; padding: 1rem; color: var(--text-dim); border-bottom: 1px solid var(--border); font-weight: 500; }
+        td { padding: 1rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        tr:last-child td { border: none; }
+        tr:hover { background: rgba(255, 255, 255, 0.03); }
+
+        .badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-success { background: rgba(74, 222, 128, 0.1); color: var(--success); }
+        .badge-warning { background: rgba(251, 191, 36, 0.1); color: var(--warning); }
+        .badge-info { background: rgba(56, 189, 248, 0.1); color: var(--primary); }
+
+        /* --- Filters --- */
+        .filters { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        select, input {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 0.6rem 1rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            outline: none;
+        }
+        input:focus { border-color: var(--primary); }
+
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 1024px) {
+            .dashboard-body { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <h1>Talento GWS <small style="font-size: 0.5em; font-weight: 300;">v3.0</small></h1>
+            </div>
+            <div class="meta">
+                <p>Última actualización</p>
+                <p id="update-time" style="font-weight: 600; color: var(--primary);">--</p>
+            </div>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Procesos</h3>
+                <div class="value" id="kpi-total">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Vacantes Activas</h3>
+                <div class="value" id="kpi-activas">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Completadas</h3>
+                <div class="value" id="kpi-completadas" style="color: var(--success);">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Licencias / Otros</h3>
+                <div class="value" id="kpi-licencias" style="color: var(--accent);">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Alerta (>30 días)</h3>
+                <div class="value" id="kpi-criticas" style="color: var(--danger);">0</div>
+            </div>
+        </div>
+
+        <div class="dashboard-body">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Detalle de Vacantes</h2>
+                    <div class="filters">
+                        <input type="text" id="search" placeholder="Buscar cargo o ciudad...">
+                        <select id="filter-estado">
+                            <option value="">Todos los estados</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Cargo</th>
+                                <th>Ciudad</th>
+                                <th>Solicitud</th>
+                                <th>Estado</th>
+                                <th>Psicóloga</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vacantes-list"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h2>Visualización de Datos</h2></div>
+                <canvas id="chart-psicologas" style="max-height: 250px; margin-bottom: 2rem;"></canvas>
+                <canvas id="chart-estados" style="max-height: 250px;"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const rawData = {{DASHBOARD_DATA}};
+        
+        function init() {
+            document.getElementById('update-time').innerText = rawData.updated_at;
+            
+            // KPIs
+            document.getElementById('kpi-total').innerText = rawData.kpis.total_vacantes;
+            document.getElementById('kpi-activas').innerText = rawData.kpis.activas;
+            document.getElementById('kpi-completadas').innerText = rawData.kpis.completadas;
+            document.getElementById('kpi-licencias').innerText = rawData.kpis.licencias;
+            document.getElementById('kpi-criticas').innerText = rawData.kpis.criticas;
+
+            renderTable();
+            populateFilters();
+            renderCharts();
+
+            // Listeners
+            document.getElementById('search').addEventListener('input', renderTable);
+            document.getElementById('filter-estado').addEventListener('change', renderTable);
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('vacantes-list');
+            const search = document.getElementById('search').value.toLowerCase();
+            const filterEstado = document.getElementById('filter-estado').value;
+
+            tbody.innerHTML = '';
+            
+            const filtered = rawData.vacantes.filter(v => {
+                const matchSearch = String(v.CARGO).toLowerCase().includes(search) || String(v.CIUDAD).toLowerCase().includes(search);
+                const matchEstado = !filterEstado || v.ESTADO === filterEstado;
+                return matchSearch && matchEstado;
+            });
+
+            filtered.forEach(v => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td style="font-weight: 600;">${v.CARGO}</td>
+                    <td>${v.CIUDAD}</td>
+                    <td style="font-size: 0.8rem; color: var(--text-dim);">${v['FECHA DE SOLICITUD']}</td>
+                    <td><span class="badge ${getBadgeClass(v.ESTADO)}">${v.ESTADO}</span></td>
+                    <td>${v.PSICOLOGA || '-'}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function getBadgeClass(estado) {
+            if (estado === 'Seleccionado') return 'badge-success';
+            if (estado === 'En Proceso' || estado === 'Entrevista') return 'badge-info';
+            return 'badge-warning';
+        }
+
+        function populateFilters() {
+            const select = document.getElementById('filter-estado');
+            const estados = [...new Set(rawData.vacantes.map(v => v.ESTADO))].filter(Boolean);
+            estados.forEach(e => {
+                const opt = document.createElement('option');
+                opt.value = opt.innerText = e;
+                select.appendChild(opt);
+            });
+        }
+
+        function renderCharts() {
+            const ctxPsi = document.getElementById('chart-psicologas').getContext('2d');
+            const ctxEst = document.getElementById('chart-estados').getContext('2d');
+
+            // Data por Psicóloga
+            const psiCount = {};
+            rawData.vacantes.forEach(v => { if(v.PSICOLOGA) psiCount[v.PSICOLOGA] = (psiCount[v.PSICOLOGA] || 0) + 1; });
+
+            new Chart(ctxPsi, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(psiCount),
+                    datasets: [{
+                        label: 'Procesos por Psicóloga',
+                        data: Object.values(psiCount),
+                        backgroundColor: '#38bdf8',
+                        borderRadius: 8
+                    }]
+                },
+                options: { 
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, border: { display: false }, grid: { color: 'rgba(255,255,255,0.05)' } } }
+                }
+            });
+
+            // Data por Estado
+            const estCount = {};
+            rawData.vacantes.forEach(v => { estCount[v.ESTADO] = (estCount[v.ESTADO] || 0) + 1; });
+
+            new Chart(ctxEst, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(estCount),
+                    datasets: [{
+                        data: Object.values(estCount),
+                        backgroundColor: ['#4ade80', '#38bdf8', '#818cf8', '#fbbf24', '#f87171'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8' } } } }
+            });
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
